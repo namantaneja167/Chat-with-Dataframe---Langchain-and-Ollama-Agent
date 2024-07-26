@@ -56,7 +56,7 @@ if user_prompt:
     st.session_state.chat_history.append({"role":"user","content": user_prompt})
     
     # loading the LLM
-    llm = ChatOllama(model="gemma:2b", temperature=0)
+    llm = ChatOllama(model="llama3.1", temperature=0)
 
     pandas_df_agent = create_pandas_dataframe_agent(
         llm,
@@ -65,3 +65,17 @@ if user_prompt:
         agent_type=AgentType.OPENAI_FUNCTIONS,
         allow_dangerous_code=True
     )
+    
+    messages = [
+        {"role":"system", "content": "You are a helpful assistant"},
+        *st.session_state.chat_history
+    ]
+
+    response = pandas_df_agent.invoke(messages)
+    assistant_response = response["output"]
+
+    st.session_state.chat_history.append({"role":"assistant", "content": assistant_response})
+
+    # display LLM response
+    with st.chat_message("assistant"):
+        st.markdown(assistant_response)
